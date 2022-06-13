@@ -2,15 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ConfigService } from '@nestjs/config';
+import { BlockOptions } from './domain/blockOptions';
 
 @Injectable()
 export class AppService {
-  API_KEY = 'GNP1REIQWK95FRVTVXCPUN37KI13D3EBVK'; // с точки зрения безопасности нужно положить это в .env, либо в github secrets например
-  arrBlockNumber = [];
-  arrBlock = [];
+  arrBlockNumber: string[] = [];
+  arrBlock: BlockOptions[] = [];
   counter = 0;
 
-  constructor(private httpService: HttpService) {
+  constructor(
+    private httpService: HttpService,
+    private configService: ConfigService,
+  ) {
     setTimeout(async () => {
       await this.getArrNumber();
       if (this.arrBlockNumber.length > 0) {
@@ -43,8 +47,8 @@ export class AppService {
       url: lastBlockUrl,
     });
     if (!data.status) {
-      const decimalBlockNumber = parseInt(data.result, 16);
-      const rangeBlockNumbers = decimalBlockNumber - 100;
+      const decimalBlockNumber: number = parseInt(data.result, 16);
+      const rangeBlockNumbers: number = decimalBlockNumber - 100;
       for (let i = decimalBlockNumber; i > rangeBlockNumbers; i -= 1) {
         this.arrBlockNumber.push(`0x${Number(i).toString(16)}`);
       }
@@ -57,7 +61,7 @@ export class AppService {
     }
     const blockTransactionUrl = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=${
       this.arrBlockNumber[this.counter]
-    }&boolean=true&apikey=${this.API_KEY}`;
+    }&boolean=true&apikey=${this.configService.get<string>('API_KEY')}`;
     const { data }: any = await this.doRequest({
       method: 'GET',
       url: blockTransactionUrl,
@@ -65,6 +69,7 @@ export class AppService {
     if (!data.status) {
       this.arrBlock.push(data.result);
       this.counter += 1;
+      console.log(`Осталось загрузить ${100 - this.counter} блоков`);
     }
     this.getArrBlock();
   }
@@ -82,8 +87,8 @@ export class AppService {
       })
       .flat();
 
-    let maxValue = arrCompareInfo[0].value;
-    let adressWithMaxValue = arrCompareInfo[0].from;
+    let maxValue: string = arrCompareInfo[0].value;
+    let adressWithMaxValue: string = arrCompareInfo[0].from;
     for (let i = 0; i < arrCompareInfo.length; i += 1) {
       if (arrCompareInfo[i].value > maxValue) {
         maxValue = arrCompareInfo[i].value;
