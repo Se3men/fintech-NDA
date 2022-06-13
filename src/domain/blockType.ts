@@ -1,4 +1,4 @@
-export class BlockOptions {
+type BlockType = {
   difficulty: string;
   extraData: string;
   gasLimit: string;
@@ -16,12 +16,14 @@ export class BlockOptions {
   stateRoot: string;
   timestamp: string;
   totalDifficulty: string;
-  transactions: TransactionOptions[];
+  transactions: TransactionType[];
   transactionsRoot: string;
   uncles: unknown[];
-}
+};
 
-export class TransactionOptions {
+export default BlockType;
+
+type TransactionType = {
   blockHash: string;
   blockNumber: string;
   from: string;
@@ -37,4 +39,4 @@ export class TransactionOptions {
   v: string;
   r: string;
   s: string;
-}
+};

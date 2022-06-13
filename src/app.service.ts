@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ConfigService } from '@nestjs/config';
-import { BlockOptions } from './domain/blockOptions';
+import BlockOptions from './domain/blockType';
 
 @Injectable()
 export class AppService {
